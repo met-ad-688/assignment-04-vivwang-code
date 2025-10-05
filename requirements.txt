@@ -74,7 +74,7 @@ jupyterlab==4.3.6
 jupyterlab_pygments==0.3.0
 jupyterlab_server==2.27.3
 jupyterlab_widgets==3.0.13
-kaleido==0.1.0.post1
+kaleido==0.2.1
 keyring==25.6.0
 kiwisolver==1.4.8
 linkify-it-py==2.0.3
@@ -120,7 +120,6 @@ prometheus_client==0.21.1
 prompt_toolkit==3.0.50
 psutil==7.0.0
 pure_eval==0.2.3
-py4j==0.10.9.7
 pyarrow==19.0.1
 pycparser==2.22
 pyct==0.5.0
@@ -129,7 +128,7 @@ pyparsing==3.2.1
 pyproj==3.7.1
 pyproject_hooks==1.2.0
 pyshp==2.3.1
-pyspark==3.5.5
+pyspark==4.0.1
 python-dateutil==2.9.0.post0
 python-json-logger==3.3.0
 pyviz_comms==3.0.4
