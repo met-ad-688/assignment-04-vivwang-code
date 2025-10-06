@@ -1,0 +1,95 @@
+---
+title: Assignment 04 - AI Prompt
+author:
+  - name: Wei Wang
+    affiliations:
+      - id: bu
+        name: Boston University
+        city: Boston
+        state: MA
+number-sections: true
+date: '2025-10-05'
+format:
+  html:
+    theme: cerulean
+    toc: true
+    toc-depth: 2
+  docx: default
+  pdf: default  
+date-modified: today
+date-format: long
+---
+
+# Prompt
+How do I map regression model coefficients to the actual feature names, including one-hot encoded variables (e.g. STATE_NAME, REMOTE_TYPE), when using a PySpark ML pipeline with StringIndexer, OneHotEncoder, and VectorAssembler?
+
+## Response
+Step-by-Step: Map Coefficients to Feature Names
+1. Retrieve Input Columns from VectorAssembler
+Start by accessing the input columns used in your VectorAssembler:
+```{python}
+assembler.getInputCols()
+# Example output: ['numeric_col1', 'numeric_col2', 'categorical_col1_vec', 'categorical_col2_vec']
+```
+
+2. Fit the Pipeline to Access Index and Encoding Models
+After fitting the pipeline:
+```{python}
+pipeline_model = pipeline.fit(df)
+```
+
+Access the corresponding StringIndexerModel and OneHotEncoderModel for each categorical column. For example:
+```{python}
+indexer_model = pipeline_model.stages[<indexer_stage_position>]
+encoder_model = pipeline_model.stages[<encoder_stage_position>]
+```
+
+Each StringIndexerModel has a .labels attribute representing the original category values.
+
+⸻
+
+3. Reconstruct One-Hot Encoded Feature Names
+
+For each categorical column:
+```{python}
+category_labels = indexer_model.labels
+# Example: ['A', 'B', 'C']
+
+# Construct one-hot feature names (dropLast=True by default, so first is dropped)
+encoded_names = [f"{categorical_col_name}_{label}" for label in category_labels[1:]]
+state_labels = indexer_model_state.labels
+```
+
+Repeat this for each one-hot encoded column.
+
+⸻
+
+4. Build Full Feature Name List
+
+Combine all numerical and reconstructed categorical names, in the exact order used by the VectorAssembler:
+
+```{python}
+full_feature_names = [
+    'numeric_col1', 'numeric_col2', 
+    'categorical_col1_B', 'categorical_col1_C', 
+    'categorical_col2_Y', 'categorical_col2_Z'
+]
+```
+
+5. Map Coefficients to Feature Names
+
+After training your regression model:
+```{python}
+model = regression.fit(training_data)
+
+for name, coef in zip(full_feature_names, model.coefficients):
+    print(f"{name}: {coef:.4f}")
+```
+
+**Summary**
+To map model coefficients to their actual features:
+	•	Retrieve the original VectorAssembler input order
+	•	Extract .labels from StringIndexerModel
+	•	Reconstruct one-hot names
+	•	Combine with numerical features
+	•	Zip with model coefficients

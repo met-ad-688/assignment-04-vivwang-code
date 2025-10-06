@@ -193,3 +193,4 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 data/lightcast_job_postings.csv
+output/glr_summary.csv
