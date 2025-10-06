@@ -194,3 +194,4 @@ cython_debug/
 .cursorindexingignore
 data/lightcast_job_postings.csv
 output/glr_summary.csv
+output/polynomial_glr_summary.csv

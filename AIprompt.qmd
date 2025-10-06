@@ -93,3 +93,58 @@ To map model coefficients to their actual features:
 	•	Reconstruct one-hot names
 	•	Combine with numerical features
 	•	Zip with model coefficients
+
+# Prompt
+---> 12 importance_df = pd.DataFrame({
+     13     "Feature": feature_names,
+     14     "Importance": importances
+     15 }).sort_values("Importance", ascending=False).head(10)
+     17 # Plot
+     18 plt.figure(figsize=(10, 6))
+ValueError: All arrays must be of the same length
+
+## Response
+The error occurs because feature_names has fewer elements than importances. This happens because one-hot encoded features (like STATE_NAME_vec and REMOTE_TYPE_vec) are single items in feature_names but expand to multiple features in the actual feature vector.
+Here's the corrected code:
+```{python}
+# Function to expand feature names with one-hot encoded categories
+def get_expanded_feature_names(data, base_feature_names):
+    """
+    Expands feature names to include individual one-hot encoded categories
+    """
+    expanded_names = []
+    
+    for feature in base_feature_names:
+        if feature.endswith("_vec"):
+            # This is a one-hot encoded feature
+            original_col = feature.replace("_vec", "")
+            # Get the size of the vector (number of categories)
+            sample_row = data.select(feature).first()
+            vec_size = len(sample_row[0])
+            
+            # Get distinct values from the original column
+            categories = data.select(original_col).distinct().rdd.flatMap(lambda x: x).collect()
+            categories = sorted(categories)[:vec_size]
+            
+            # Add each category as a separate feature name
+            for category in categories:
+                expanded_names.append(f"{original_col}_{category}")
+        else:
+            # Regular numeric feature
+            expanded_names.append(feature)
+    
+    return expanded_names
+
+# Get feature names from assembler
+base_feature_names = assembler_base.getInputCols()
+
+# Expand feature names to match the actual feature vector
+expanded_feature_names = get_expanded_feature_names(data, base_feature_names)
+
+# Extract feature importances
+importances = rf_model.featureImportances.toArray()
+
+# Verify lengths match
+print(f"\nNumber of expanded features: {len(expanded_feature_names)}")
+print(f"Number of importances: {len(importances)}")
+```
